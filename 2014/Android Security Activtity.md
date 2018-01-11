@@ -3,7 +3,9 @@
 ----------
 
 **Author:瘦蛟舞**
-**Create:20141114**
+
+**Create:20141114 Update:20180111**
+
 
 ##0x00 科普
 
@@ -59,7 +61,7 @@ Activity是为用户操作而展示的可视化用户界面。比如说，一个
 
 Activity有四种加载模式：
 
-- **standard**：默认行为。每次启动一个activity，系统都会在目标task新建一个实例。
+- **standard**:默认行为。每次启动一个activity，系统都会在目标task新建一个实例。
 - **singleTop**:如果目标activity的实例已经存在于目标task的栈顶，系统会直接使用该实例，并调用该activity的onNewIntent()（不会重新create）
 - **singleTask**:在一个新任务的栈顶创建activity的实例。如果实例已经存在，系统会直接使用该实例，并调用该activity的onNewIntent()（不会重新create）
 - **singleInstance**:和"singleTask"类似，但在目标activity的task中不会再运行其他的activity，在那个task中永远只有一个activity。
@@ -91,7 +93,7 @@ Task是指将相关的Activity组合到一起，以Activity Stack的方式进行
 
 如果用户离开一个task很长时间，系统会清理栈顶以下的activity，这样task被从新打开时，栈顶activity就被还原了。
 
-![](http://static.wooyun.org/drops/20141117/201411171045task2.png)
+![](img/task2.png)
 
 **Intent Selector**
 
@@ -101,7 +103,7 @@ Task是指将相关的Activity组合到一起，以Activity Stack的方式进行
 
 	android:exported
 
-一个Activity组件能否被外部应用启动取决于此属性，设置为true时Activity可以被外部应用启动，设置为false则不能，此时Activity只能被自身app启动。（同user id或者root也能启动）
+一个Activity组件能否被外部应用启动取决于此属性，设置为true时Activity可以被外部应用启动，设置为false则不能，此时Activity只能被自身app启动。（同userid或者root/system也能启动）
 
 没有配置intent-filter属性exported默认为false（没有filter只能通过明确的类名来启动activity故相当于只有程序本身能启动），配置了intent-filter属性exported默认为true。
 
@@ -111,17 +113,17 @@ exported属性只是用于限制Activity是否暴露给其他app，通过配置�
 
 [http://developer.android.com/intl/zh-cn/guide/topics/manifest/permission-element.html](http://developer.android.com/intl/zh-cn/guide/topics/manifest/permission-element.html)
 
-![](http://static.wooyun.org/drops/20141117/201411171045permission.png)
+![](img/permission.png)
  
-![](http://static.wooyun.org/drops/20141117/201411171045permission2.jpg)
+![](img/permission2.jpg)
 
 normal:默认值,应用程序特征具有的权限带来的影响最小（如VIBRATE，仅运行应用程序震动移动设备）。对用户而言，适合授予权限的程序特征通常不是关键的关注点。用户可以审查这些特征，但是可能不会被明显地告警。
 
 dangerous：像WRITE\_SETTING和SEND\_SMS等权限是危险的，因为这些权限能够用来重新配置设备或者导致话费。应用这个等级来标识用户可能关注或者是感到诧异的一些权限。Android将会在安装程序时，警示用户关于这些权限的需求，虽然具体的行为可能依据Android版本或者所安装的移动设备而有所变化
 
-signature：这些权限仅授予那些和本程序应用了相同密钥来签名的程序，这样允许在不发布公开接口的情况下进行安全的协调
+signature：此权限仅授予本程序应用了相同密钥来签名的程序,这样允许在不发布公开接口的情况下进行安全的调用.
 
-signatureOrSystem:与signature类似，除了一点，系统中的程序也需要有资格来访问。这样允许定制Android系统上的应用程序也能获得权限。这种保护等级有助于集成系统编译过程。
+signatureOrSystem:与signature类似，除了一点，系统中的程序也需要有权限来访问。这样允许定制Android系统上的应用程序也能获得权限。这种保护等级有助于集成系统编译过程。
 
 
     <!-- *** POINT 1 *** Define a permission with protectionLevel="signature" -->
@@ -168,7 +170,7 @@ signatureOrSystem:与signature类似，除了一点，系统中的程序也需�
 Activity类型和使用方式决定了其风险和防御方式,故将Activity分类如下：
 Private、Public、Parter、In-house
 
-![](http://static.wooyun.org/drops/20141117/201411171045types.jpg)
+![](img/types.jpg)
 
 ###private activity
 
@@ -269,7 +271,7 @@ http://www.wooyun.org/bugs/wooyun-2010-048502
 
 	$ am start -a android.intent.action.MAIN -n com.wsandroid.suite/com.mcafee.main.MfeMain
 
-![](http://static.wooyun.org/drops/20141117/201411171045mcafee.png)
+![](img/mcafee.png)
  
 **案例2：本地拒绝服务**
 
@@ -334,7 +336,7 @@ POC如下
 
 暂缺可公开案例,攻击模型如下图。
 
-![](http://static.wooyun.org/drops/20141117/201411171045selector.jpg)
+![](img/selector.jpg)
 
 **案例6：Fragment注入(绕过PIN+拒绝服务)**
 
@@ -344,13 +346,13 @@ Fragment这里只提一下，以后可能另写一篇。
     16、bypass Pin android 3.0-4.3 （selector）
 	</a><br>
 
-![](http://static.wooyun.org/drops/20141117/201411171045pin.png)
+![](img/pin.png)
 
 	<a href="intent:#Intent;S.:android:show_fragment=XXXX;launchFlags=0x00008000;SEL;component=com.android.settings/com.android.settings.Settings;end">
     17、fragment dos android 4.4 (selector)
 	</a><br>
 
-![](http://static.wooyun.org/drops/20141117/201411171045fragdos.jpg)
+![](img/fragdos.jpg)
 
 **案例7:webview RCE**
 
@@ -358,7 +360,7 @@ Fragment这里只提一下，以后可能另写一篇。
     15、驴妈妈代码执行（fixed）
 	</a><br>
 
-![](http://static.wooyun.org/drops/20141117/201411171045lvmm.jpg)
+![](img/lvmm.jpg)
 
 ##0x06 参考
 
