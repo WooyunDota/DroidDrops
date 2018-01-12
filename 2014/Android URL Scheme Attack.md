@@ -8,9 +8,9 @@
 
 ## 1.1  Android Intents with Chrome
 
-Android有一个很少人知道的特性可以通过web页面发送intent来启动apps。以前通过网页启动app是通过设置iframe的src属性，例如：<iframe src="paulsawesomeapp://page1"> </iframe>。此方法适用version 18或者更早版本。其他android浏览器也适用。
+Android有一个很少人知道的特性可以通过web页面发送intent来启动apps。以前通过网页启动app是通过设置iframe的src属性，例如：`<iframe src="paulsawesomeapp://page1"> </iframe>`。此方法适用version 18或者更早版本。其他android浏览器也适用。
 
-这个功能在安卓chrome 浏览器version 25之后版本发生了改变。不能在通过设置iframe标签的src属性来启动app了。取而代之的是你应该通过自定义scheme实现用户手势启动app或者使用本文描述的“intent:”语法。
+这个功能在安卓chrome 浏览器version 25之后版本发生了改变。不能在通过设置iframe标签的src属性来启动app了。取而代之的是你应该通过自定义scheme实现用户手势启动app或者使用本文描述的`intent:`语法。
 
 ### 1.1.1  基本语法
 

@@ -257,7 +257,7 @@ Parter、in-house部分参阅[http://www.jssec.org/dl/android_securecoding_en.pd
 - adb shell：am start -a action -n package/componet
 - drozer: run app.activity.start --action android.action.intent.VIEW ...
 - 自己编写app调用startActiviy()或startActivityForResult(),或者利用next-intent.
-- 浏览器intent scheme远程启动:[Intent scheme URL attack](https://github.com/WooyunDota/DroidDrops/blob/master/2014/url%20scheme%20attack.md)
+- 浏览器intent scheme远程启动:[Intent scheme URL attack](https://github.com/WooyunDota/DroidDrops/blob/master/2014/Android%20URL%20Scheme%20Attack.md)
 
 ## 0x05 案例
 
