@@ -1,4 +1,4 @@
-#Android Security Activtity
+# Android Security Activtity
 
 ----------
 
@@ -7,7 +7,7 @@
 **Create:20141114 Update:20180111**
 
 
-##0x00 科普
+## 0x00 科普
 
 ----------
 
@@ -17,7 +17,7 @@ Activity是为用户操作而展示的可视化用户界面。比如说，一个
 
 一个应用程序可以只有一个activity，或如刚才提到的短信应用程序那样，包含很多个。每个activity的作用，以及其数目，自然取决于应用程序及其设计。一般情况下，总有一个应用程序被标记为用户在应用程序启动的时候第一个看到的。从一个activity转向另一个的方式是靠当前的activity启动下一个。
 
-##0x01 知识要点
+## 0x01 知识要点
 
 ----------
 
@@ -163,7 +163,7 @@ signatureOrSystem:与signature类似，除了一点，系统中的程序也需�
 - getExtras()
 - putExtra(String name, String value)
 
-##0x02 Activity分类
+## 0x02 Activity分类
 
 ----------
 
@@ -241,7 +241,7 @@ Parter、in-house部分参阅[http://www.jssec.org/dl/android_securecoding_en.pd
 
 
 
-##0x04 测试方法
+## 0x04 测试方法
 
 ----------
 
@@ -256,10 +256,10 @@ Parter、in-house部分参阅[http://www.jssec.org/dl/android_securecoding_en.pd
 
 - adb shell：am start -a action -n package/componet
 - drozer: run app.activity.start --action android.action.intent.VIEW ...
-- 自己编写app调用startActiviy()或startActivityForResult()
-- 浏览器intent scheme远程启动:http://drops.wooyun.org/tips/2893
+- 自己编写app调用startActiviy()或startActivityForResult(),或者利用next-intent.
+- 浏览器intent scheme远程启动:[Intent scheme URL attack](https://github.com/WooyunDota/DroidDrops/blob/master/2014/url%20scheme%20attack.md)
 
-##0x05 案例
+## 0x05 案例
 
 ----------
 
@@ -362,7 +362,7 @@ Fragment这里只提一下，以后可能另写一篇。
 
 ![](img/lvmm.jpg)
 
-##0x06 参考
+## 0x06 参考
 
 ----------
 
