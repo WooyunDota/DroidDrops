@@ -117,13 +117,12 @@ exported属性只是用于限制Activity是否暴露给其他app，通过配置�
  
 ![](img/permission2.jpg)
 
-normal:默认值,应用程序特征具有的权限带来的影响最小（如VIBRATE，仅运行应用程序震动移动设备）。对用户而言，适合授予权限的程序特征通常不是关键的关注点。用户可以审查这些特征，但是可能不会被明显地告警。
-
-dangerous：像WRITE\_SETTING和SEND\_SMS等权限是危险的，因为这些权限能够用来重新配置设备或者导致话费。应用这个等级来标识用户可能关注或者是感到诧异的一些权限。Android将会在安装程序时，警示用户关于这些权限的需求，虽然具体的行为可能依据Android版本或者所安装的移动设备而有所变化
-
-signature：此权限仅授予本程序应用了相同密钥来签名的程序,这样允许在不发布公开接口的情况下进行安全的调用.
-
-signatureOrSystem:与signature类似，除了一点，系统中的程序也需要有权限来访问。这样允许定制Android系统上的应用程序也能获得权限。这种保护等级有助于集成系统编译过程。
+等级|说明
+------------ | -------------
+normal|默认值,调用者无需操作.
+dangerous|调用者需在配置清单中申明此权限.
+signature|调用者需有相同签名.
+signatureOrSystem|调用者需system uid或者具有相同签名.
 
 
     <!-- *** POINT 1 *** Define a permission with protectionLevel="signature" -->
