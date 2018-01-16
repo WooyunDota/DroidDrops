@@ -21,7 +21,7 @@ SDK下载地址：http://asdk.cydiasubstrate.com/zips/cydia_substrate-r2.zip
 
 ----
 
-之前讲解过 xposed 的用法为啥还要整这个了,下面简单对比两款框架.想了解之前 xposed 篇的可以看这里:[http://drops.wooyun.org/tips/7488](http://drops.wooyun.org/tips/7488)
+之前讲解过 xposed 的用法为啥还要整这个了,下面简单对比两款框架.想了解之前 xposed 篇的可以看这里:[Android.Hook框架xposed篇(Http流量监控)](https://github.com/WooyunDota/DroidDrops/blob/master/2015/Android.Hook%E6%A1%86%E6%9E%B6xposed%E7%AF%87(Http%E6%B5%81%E9%87%8F%E7%9B%91%E6%8E%A7).md)
 
 **劣势**:
 
