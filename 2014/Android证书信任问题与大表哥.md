@@ -54,8 +54,9 @@ http://www.wooyun.org/bugs/wooyun-2010-079358
 
 logcat会输出网页显示不安全的内容
 
-	Web Console:The page displayed insecure content!
-
+```
+Web Console:The page displayed insecure content!
+```
 功能健全的手机浏览器访问自签名证书的站点会如下提醒
 
 ![](img/mUC.jpg)
@@ -68,49 +69,52 @@ logcat会输出网页显示不安全的内容
 
 覆盖google默认的证书检查机制
 
-	class bv
-	  implements X509TrustManager
-	{
-	  bv(bu parambu) {}
-	  
-	  public void checkClientTrusted(X509Certificate[] paramArrayOfX509Certificate, String paramString) {}
+```java
+class bv
+  implements X509TrustManager
+{
+  bv(bu parambu) {}
   
-	  public void checkServerTrusted(X509Certificate[] paramArrayOfX509Certificate, String paramString) {}
-  
-	  public X509Certificate[] getAcceptedIssuers()
-	  {
-	    return null;
-	  }
-	}
+  public void checkClientTrusted(X509Certificate[] paramArrayOfX509Certificate, String paramString) {}
+
+  public void checkServerTrusted(X509Certificate[] paramArrayOfX509Certificate, String paramString) {}
+
+  public X509Certificate[] getAcceptedIssuers()
+  {
+    return null;
+  }
+}
+```
 
 信任所有主机名
 
-	public static HttpClient getNewHttpClient() {  
-        try {  
-			//获得密匙库
-            KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());  
-            trustStore.load(null, null);  
-            
-            SSLSocketFactory sf = new SSLSocketFactoryEx(trustStore); 
-			//信任所有主机名 
-            sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);  
-    
-            HttpParams params = new BasicHttpParams();  
-            HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);  
-            HttpProtocolParams.setContentCharset(params, HTTP.UTF_8);  
-    
-            SchemeRegistry registry = new SchemeRegistry();  
-            registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));  
-            registry.register(new Scheme("https", sf, 443));  
-    
-            ClientConnectionManager ccm = new ThreadSafeClientConnManager(params, registry);  
-    
-            return new DefaultHttpClient(ccm, params);  
-        } catch (Exception e) {  
-            return new DefaultHttpClient();  
-        }  
-    }  
+```java
+public static HttpClient getNewHttpClient() {  
+    try {  
+		//获得密匙库
+        KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());  
+        trustStore.load(null, null);  
+        
+        SSLSocketFactory sf = new SSLSocketFactoryEx(trustStore); 
+		//信任所有主机名 
+        sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);  
 
+        HttpParams params = new BasicHttpParams();  
+        HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);  
+        HttpProtocolParams.setContentCharset(params, HTTP.UTF_8);  
+
+        SchemeRegistry registry = new SchemeRegistry();  
+        registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));  
+        registry.register(new Scheme("https", sf, 443));  
+
+        ClientConnectionManager ccm = new ThreadSafeClientConnManager(params, registry);  
+
+        return new DefaultHttpClient(ccm, params);  
+    } catch (Exception e) {  
+        return new DefaultHttpClient();  
+    }  
+}  
+```
 
 其实早在14年2月[窃听风暴： Android平台https嗅探劫持漏洞](http://drops.wooyun.org/papers/959)文中就有提到android平台的app因为覆盖google默认的证书检查机制（X509TrustManager）之后没有对证书进行应有的安全性检查，直接接受了所有异常的https证书，不提醒用户存在安全风险，也不终止这次危险的连接。文中对证书域名检查（HostnameVerifier）部分没有细说。
 

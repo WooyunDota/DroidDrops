@@ -27,15 +27,15 @@ Broadcast Recevier
 
 ![](img/static.jpg)
 
-（静态与动态注册广播接收器区别）
+（静态与动态注册广播接收器区别,动态广播接收器不能设为私有是关键.）
  
 **回调方法**
 
 广播接收器只有一个回调方法：
 
-	#!java
-	void onReceive(Context curContext, Intent broadcastMsg)
-	
+```java
+void onReceive(Context curContext, Intent broadcastMsg)
+```	
 当广播消息抵达接收器时，Android调用它的onReceive() 方法并将包含消息的Intent对象传递给它。广播接收器仅在它执行这个方法时处于活跃状态。当onReceive()返回后，它即为失活状态。
 拥有一个活跃状态的广播接收器的进程被保护起来而不会被杀死。但仅拥有失活状态组件的进程则会在其它进程需要它所占有的内存的时候随时被杀掉。
 这种方式引出了一个问题：如果响应一个广播信息需要很长的一段时间，我们一般会将其纳入一个衍生的线程中去完成，而不是在主线程内完成它，从而保证用户交互过程的流畅。如果onReceive()衍生了一个线程并且返回，则包涵新线程在内的整个进程都被会判为失活状态（除非进程内的其它应用程序组件仍处于活跃状态），于是它就有可能被杀掉。这个问题的解决方法是令onReceive()启动一个新服务，并用其完成任务，于是系统就会知道进程中仍然在处理着工作。
@@ -45,16 +45,17 @@ Broadcast Recevier
 
 设置接收app
 
-	#!java
-	Intent 	setPackage(String packageName)
-	(Usually optional) Set an explicit application package name that limits the components this Intent will resolve to.
+```java
+Intent 	setPackage(String packageName)
+(Usually optional) Set an explicit application package name that limits the components this Intent will resolve to.
+```
 
 设置接收权限
 
-	#!java
-	abstract void 	sendBroadcast(Intent intent, String receiverPermission)
-	Broadcast the given intent to all interested BroadcastReceivers, allowing an optional required permission to be enforced.
-
+```java
+abstract void 	sendBroadcast(Intent intent, String receiverPermission)
+Broadcast the given intent to all interested BroadcastReceivers, allowing an optional required permission to be enforced.
+```
 protectionLevel
 
 等级|说明
@@ -138,61 +139,63 @@ intent-filter节点与exported属性设置组合建议
 
 1、查找动态广播接收器：反编译后检索registerReceiver(),
 
-	dz> run app.broadcast.info -a android -i
+```
+dz> run app.broadcast.info -a android -i
+```
 
 2、查找静态广播接收器：反编译后查看配置文件查找广播接收器组件<receiver>，注意exported属性
 
 3、查找发送广播内的信息检索sendBroadcast与sendOrderedBroadcast，注意setPackage方法于receiverPermission变量。
 
 发送测试广播
-	
-	#!java
-	adb shell：
-	am broadcast -a MyBroadcast -n com.isi.vul_broadcastreceiver/.MyBroadCastReceiver
-	am broadcast -a MyBroadcast -n com.isi.vul_broadcastreceiver/.MyBroadCastReceiver –es number 5556.
-	
-	drozer：
-	dz> run app.broadcast.send --component com.package.name --action android.intent.action.XXX
-	
-	code：
-	Intent i = new Intent();
-	ComponentName componetName = new ComponentName(packagename,  componet);         
-	i.setComponent(componetName);       
-	sendBroadcast(i);
-		
-	
+
+```bash
+adb shell：
+am broadcast -a MyBroadcast -n com.isi.vul_broadcastreceiver/.MyBroadCastReceiver
+am broadcast -a MyBroadcast -n com.isi.vul_broadcastreceiver/.MyBroadCastReceiver –es number 5556.
+
+drozer：
+dz> run app.broadcast.send --component com.package.name --action android.intent.action.XXX
+
+code：
+Intent i = new Intent();
+ComponentName componetName = new ComponentName(packagename,  componet);         
+i.setComponent(componetName);       
+sendBroadcast(i);
+```
+
 接收指定广播
 
-	#!java
-	public class Receiver extends BroadcastReceiver {
- 		private final String ACCOUNT_NAME = "account_name";
-		private final String ACCOUNT_PWD = "account_password";
-		private final String ACCOUNT_TYPE = "account_type";
-	  	private void doLog(Context paramContext, Intent paramIntent)
-	  	{
-			String name;
-			String password;
-			String type;
-			do
-			{
-				name = paramIntent.getExtras().getString(ACCOUNT_NAME);
-				password = paramIntent.getExtras().getString(ACCOUNT_PWD);
-				type = paramIntent.getExtras().getString(ACCOUNT_TYPE);
-			}
-	   		while ((TextUtils.isEmpty(name)) || (TextUtils.isEmpty(password)) || (TextUtils.isEmpty(type)) || ((!type.equals("email")) && (!type.equals("cellphone"))));
-			Log.i("name", name);
-			Log.i("password", password);
-			Log.i("type", type);
-	 	 }
+```java
+public class Receiver extends BroadcastReceiver {
+	private final String ACCOUNT_NAME = "account_name";
+	private final String ACCOUNT_PWD = "account_password";
+	private final String ACCOUNT_TYPE = "account_type";
+  	private void doLog(Context paramContext, Intent paramIntent)
+  	{
+		String name;
+		String password;
+		String type;
+		do
+		{
+			name = paramIntent.getExtras().getString(ACCOUNT_NAME);
+			password = paramIntent.getExtras().getString(ACCOUNT_PWD);
+			type = paramIntent.getExtras().getString(ACCOUNT_TYPE);
+		}
+   		while ((TextUtils.isEmpty(name)) || (TextUtils.isEmpty(password)) || (TextUtils.isEmpty(type)) || ((!type.equals("email")) && (!type.equals("cellphone"))));
+		Log.i("name", name);
+		Log.i("password", password);
+		Log.i("type", type);
+ 	 }
 
-	  	public void onReceive(Context paramContext, Intent paramIntent)
-	  	{
-	  	  if (TextUtils.equals(paramIntent.getAction(), "account"))
-	      doLog(paramContext, paramIntent);
-	 	 }
+  	public void onReceive(Context paramContext, Intent paramIntent)
+  	{
+  	  if (TextUtils.equals(paramIntent.getAction(), "account"))
+      doLog(paramContext, paramIntent);
+ 	 }
 
-	}
-	
+}
+```
 
 ## 0x04 案例
 
@@ -224,50 +227,52 @@ http://www.wooyun.org/bugs/wooyun-2010-039801
 
 隐式意图发送敏感信息
 
-	#!java
-	public class ServerService extends Service {
-	  // ...
-	  private void d() {
-	    // ...
-	    Intent v1 = new Intent();
-	    v1.setAction("com.sample.action.server_running");
-	    v1.putExtra("local_ip", v0.h);
-	    v1.putExtra("port", v0.i);
-	    v1.putExtra("code", v0.g);
-	    v1.putExtra("connected", v0.s);
-	    v1.putExtra("pwd_predefined", v0.r);
-	    if (!TextUtils.isEmpty(v0.t)) {
-	      v1.putExtra("connected_usr", v0.t);
-	    }
-	  }
-	  this.sendBroadcast(v1);
-	}
-	
+```java
+public class ServerService extends Service {
+  // ...
+  private void d() {
+    // ...
+    Intent v1 = new Intent();
+    v1.setAction("com.sample.action.server_running");
+    v1.putExtra("local_ip", v0.h);
+    v1.putExtra("port", v0.i);
+    v1.putExtra("code", v0.g);
+    v1.putExtra("connected", v0.s);
+    v1.putExtra("pwd_predefined", v0.r);
+    if (!TextUtils.isEmpty(v0.t)) {
+      v1.putExtra("connected_usr", v0.t);
+    }
+  }
+  this.sendBroadcast(v1);
+}
+```
+
 接收POC
 
 
-	#！java
-	public class BcReceiv extends BroadcastReceiver {
-	  @Override
-	  public void onReceive(Context context, Intent intent){
-     
-	    String s = null;
-	    if (intent.getAction().equals("com.sample.action.server_running")){
-	      String pwd = intent.getStringExtra("connected");
-	      s = "Airdroid  => [" + pwd + "]/" + intent.getExtras();
-	    }
-	    Toast.makeText(context, String.format("%s Received", s),
-	                   Toast.LENGTH_SHORT).show();
-	  }
-	}
+```java
+public class BcReceiv extends BroadcastReceiver {
+  @Override
+  public void onReceive(Context context, Intent intent){
+    String s = null;
+    if (intent.getAction().equals("com.sample.action.server_running")){
+      String pwd = intent.getStringExtra("connected");
+      s = "Airdroid  => [" + pwd + "]/" + intent.getExtras();
+    }
+    Toast.makeText(context, String.format("%s Received", s),
+                   Toast.LENGTH_SHORT).show();
+  }
+}
+```
 	
 修复后代码，使用 LocalBroadcastManager.sendBroadcast() 发出的广播只能被app自身广播接收器接收。
 
 
-	#！java
-	Intent intent = new Intent("my-sensitive-event");
-	intent.putExtra("event", "this is a test event");
-	LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+```java
+Intent intent = new Intent("my-sensitive-event");
+intent.putExtra("event", "this is a test event");
+LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+```
 
 **案例4：权限绕过**
 
