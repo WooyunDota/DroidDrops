@@ -247,7 +247,7 @@ http://wooyun.github.io/bugs/wooyun-2010-079357
 * 很多app会做写一个LogUtil类并且做一个开关filed.在dev版本中打开,release版本中关闭.这样做貌似很科学,但是也给他人逆向留下个快捷插桩途径.逆向人员只需要注入开关filed即可快速得到开发预留的logcat信息.更好的做法应该是在release版本中结合Proguard移除crash error外的日志.
 * logcat硬编码TAG会给逆向恢复类名带来遍历,建议使用```MyClass.class.getSimpleName();```
 * 重写toString方法也会破坏混淆的效果,注意尽量减少硬编码的使用.
-*  ```Proguard rule -keepattributes SourceFile``` LineNumberTableProguard默认会移除这一行,但是某些app为了收集详细的错误日志用于调试bug而开启了如上属性.这样通用会破坏混淆效果.
+*  ```Proguard rule -keepattributes SourceFile LineNumberTable``` Proguard默认会移除这一行,但是某些app为了收集详细的错误日志用于调试bug而开启了如上属性.这样通用会破坏混淆效果.
 
 
 ## 0x08 参考
