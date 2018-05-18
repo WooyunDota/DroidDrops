@@ -614,28 +614,41 @@ utf8 string写
 `Memory.allocUtf8String(str)`
 `var stringVar = Memory.allocUtf8String("string");`
 utf8 string读
+
 `Memory.readUtf8String(address[, size = -1])`
 
 int写
+
 `var intVar = ptr("0x100");`
+
 `var intVar = ptr("256");`
+
 int读
+
 `toInt32()`: cast this NativePointer to a signed 32-bit integer
 
 二进制读取
+
 `hexdump(target[, options])`: generate a hexdump from the provided_ArrayBuffer_ or \_NativePointer_ `target`, optionally with `options` for customizing the output.
 
 ## 0x06 推荐工具和阅读
 
 frida api
+
 https://www.frida.re/docs/javascript-api
+
 中文翻译
+
 https://zhuanlan.kanxue.com/article-342.htm
+
 https://zhuanlan.kanxue.com/article-414.htm
 
 工具推荐
+
 appmon : https://github.com/dpnishant/appmon
+
 droidSSLUnpinning : https://github.com/WooyunDota/DroidSSLUnpinning
+
 objection : https://github.com/sensepost/objection
 
 
@@ -644,8 +657,13 @@ objection : https://github.com/sensepost/objection
 
 ---
 https://github.com/datatheorem/TrustKit-Android
+
 https://github.com/moxie0/AndroidPinning
+
 https://koz.io/using-frida-on-android-without-root/
+
 https://medium.com/@appmattus/android-security-ssl-pinning-1db8acb6621e
+
 https://developer.android.com/training/articles/security-ssl.html#Pinning
+
 https://developer.android.com/training/articles/security-config.html?hl=zh-cn
