@@ -187,10 +187,10 @@ Frida: Listening on TCP port 27042
 | 安全等级 | 策略 | 信任范围 | 破解方法 |
 |---|---|---|---|
 | 0 | 完全兼容策略 | 信任所有证书包括自签发证书 | 无需特殊操作 |
-| 1 | 系统/浏览器默认策略 | 信任系统或浏览内置CA证书以及用户安装证书<br>(android 7.0开始默认不信任用户导入的证书) | 设备安装代理证书 |
-| 2 | CA Pinning <br> Root (intermediate) certificate pinning | 信任指定CA颁发的证书 | hook注入等方式篡改锁定逻辑 |
-| 3 | Leaf Certificate pinning | 信任指定站点证书 | hook注入等方式篡改锁定逻辑<br>如遇双向锁定需将app自带证书导入代理软件 |
-
+| 1 | 系统/浏览器默认策略 | 信任系统或浏览内置CA证书以及用户安装证书| 设备安装代理证书 |
+| 2 | system CA pinning | 只信任系统根证书,不信任用户安装的证书<br>(android 7.0支持配置network-security-config) | 注入或者root后将用户证书拷贝到系统证书目录 |
+| 3 | CA Pinning <br> Root (intermediate) certificate pinning | 信任指定CA颁发的证书 | hook注入等方式篡改锁定逻辑 |
+| 4 | Leaf Certificate pinning | 信任指定站点证书 | hook注入等方式篡改锁定逻辑<br>如遇双向锁定需将app自带证书导入代理软件 |
 
 
 文章要对抗的是最后两种锁定的情况(预告:关于证书锁定方案细节另有文章待发布).
