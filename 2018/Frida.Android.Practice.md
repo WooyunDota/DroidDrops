@@ -101,8 +101,7 @@ x86
 
 ```bash
 root@android:/ # chmod 700 frida-server 
-root@android:/ # /data/local/tmp/frida-server -t 0 (注意在root下运行)
-root@android:/ # /data/local/tmp/frida-server
+root@android:/ # ./data/local/tmp/frida-server
 ```
 电脑上运行adb forward tcp转发:
 
@@ -184,7 +183,7 @@ Frida: Listening on TCP port 27042
 客户端关于证书处理的逻辑按照安全等级我做了如下分类:
 
 
-| 安全等级 | 策略 | 信任范围 | 破解方法 |
+| 安全等级 | 安全策略 | 信任范围 | 破解方法 |
 |---|---|---|---|
 | 0 | 完全兼容策略 | 信任所有证书包括自签发证书 | 无需特殊操作 |
 | 1 | 系统/浏览器默认策略 | 信任系统或浏览内置CA证书以及用户安装证书| 设备安装代理证书 |
