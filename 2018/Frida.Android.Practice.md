@@ -576,7 +576,7 @@ https://gist.github.com/oleavr/3ca67a173ff7d207c6b8c3b0ca65a9d8
 
 java接口使用参考,其中X509TrustManager是interface类型.TrustManager为其实现类.manager为实例.
 
-我就成功过这一个接口,其他接口比如Runnable , HostNamerVerifier都没成功.
+我就成功过这一个接口,其他接口比如Runnable , HostNamerVerifier都没成功. 此问题在11.0.12上已经修复.
 
 ```JavaScript
 'use strict';
