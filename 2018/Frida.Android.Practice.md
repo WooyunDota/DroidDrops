@@ -64,7 +64,12 @@ Inject JavaScript to explore native apps on Windows, Mac, Linux, iOS and Android
 
 python环境
 
-    $ pip install -U frida
+```bash
+pip install frida-tools # CLI tools
+pip install frida       # Python bindings
+npm install frida       # Node.js bindings
+```
+
 可选:源码编译
 
     $ git clone git://github.com/frida/frida.git
@@ -101,7 +106,8 @@ x86
 
 ```bash
 root@android:/ # chmod 700 frida-server 
-root@android:/ # ./data/local/tmp/frida-server
+root@android:/ # /data/local/tmp/frida-server -t 0 (注意在root下运行)
+root@android:/ # /data/local/tmp/frida-server
 ```
 电脑上运行adb forward tcp转发:
 
@@ -183,13 +189,14 @@ Frida: Listening on TCP port 27042
 客户端关于证书处理的逻辑按照安全等级我做了如下分类:
 
 
-| 安全等级 | 安全策略 | 信任范围 | 破解方法 |
+| 安全等级 | 策略 | 信任范围 | 破解方法 |
 |---|---|---|---|
 | 0 | 完全兼容策略 | 信任所有证书包括自签发证书 | 无需特殊操作 |
 | 1 | 系统/浏览器默认策略 | 信任系统或浏览内置CA证书以及用户安装证书| 设备安装代理证书 |
 | 2 | system CA pinning | 只信任系统根证书,不信任用户安装的证书<br>(android 7.0支持配置network-security-config) | 注入或者root后将用户证书拷贝到系统证书目录 |
 | 3 | CA Pinning <br> Root (intermediate) certificate pinning | 信任指定CA颁发的证书 | hook注入等方式篡改锁定逻辑 |
 | 4 | Leaf Certificate pinning | 信任指定站点证书 | hook注入等方式篡改锁定逻辑<br>如遇双向锁定需将app自带证书导入代理软件 |
+
 
 
 文章要对抗的是最后两种锁定的情况(预告:关于证书锁定方案细节另有文章待发布).
@@ -350,7 +357,7 @@ https://github.com/menjoo/Android-SSL-Pinning-WebViews
     }
 ```
 首选想到是spawn,但是spawn后并没有将脚本自动load..(
-LD_PRELOAD 条件苛刻不考虑),也就是使用-f参数的时候-l参数并未生效.
+LD_PRELOAD 条件苛刻不考虑),也就是使用-f参数的时候-l参数并未生效.(需要用%resume命令)
 
 ```bash
 frida -U -f com.example.mennomorsink.webviewtest2 --no-pause -l sharecode/objectionUnpinning.js 
@@ -424,6 +431,7 @@ except KeyboardInterrupt:
 
 ```
 成功Unpinning .(app启动后需要前后台切换一次才会成功hook到init,猜测是因为pinning初始化是在Activity onCreate时完成的.frida注入onCreate有点问题.https://github.com/frida/frida-java/issues/29)
+
 ```JavaScript
 'use strict';
 setImmediate(function() {
@@ -474,6 +482,7 @@ setImmediate(function() {
 没有合适公开的例子,就拿 [https://www.52pojie.cn/thread-611938-1-1.html](https://www.52pojie.cn/thread-611938-1-1.html) 帖子中提到的无法 hook ndk 中 getInt 函数问题来做演示.
 
 ndk代码
+
 ```C
 #define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO, "hooktest", __VA_ARGS__)
 int getInt(int i)
@@ -491,6 +500,7 @@ extern "C"   JNIEXPORT jstring   JNICALL Java_mi_ndk4frida_MainActivity_stringFr
 关键在于对指针和函数入口的理解,例子用了偏移寻址和符号寻址两种方式做对比,偏移和导出符号均可通过IDA静态分析取得,最后效果是一样的.
 
 hook 代码
+
 ```javascript
 var fctToHookPtr = Module.findBaseAddress("libnative-lib.so").add(0x5A8);
 
@@ -554,29 +564,116 @@ Interceptor.attach(getIntAddr, {
 
 ## 0x05 tips
 
-**获取app context**
+### 插件加载Dynamic load
+
+`Java.openClassFile(dexPath).load();`
+
+### Classloader枚举
+
+```JavaScript
+Java.enumerateClassLoaders({
+    onMatch: function (loader)
+    {
+        console.log("loader = " + loader);
+        // count++;
+    },
+    onComplete: function ()
+    {
+        // send((count > 0) ? 'count > 0' : 'count == 0');
+    }
+});
+```
+
+### UI thread 注入
+
+ `Java.scheduleOnMainThread(fn)`: run `fn` on the main thread of the VM.
+
+示例
+
+```JavaScript
+Java.perform(function() {
+  var Toast = Java.use('android.widget.Toast');
+  var currentApplication = Java.use('android.app.ActivityThread').currentApplication(); 
+  var context = currentApplication.getApplicationContext();
+
+  Java.scheduleOnMainThread(function() {
+    Toast.makeText(context, "Hello World", Toast.LENGTH_LONG.value).show();
+  })
+})
+
+```
+
+### 获取对象实例
+
+`Java.choose(className, callbacks)`
+
+example
+
+```JavaScript
+setImmediate(function() {
+    console.log("[*] Starting script");
+    Java.perform(function () {
+        Java.choose("android.view.View", { 
+             "onMatch":function(instance){//This function will be called for every instance found by frida
+                  console.log("[*] Instance found");
+             },
+             "onComplete":function() {
+                  console.log("[*] Finished heap search")
+             }
+        });
+    });
+});
+
+```
+
+### 泛型处理
+
+Use `Java.cast()` when dealing with generics. 可以理解为java中的强制类型转换.
 
 ```javascript
-    var currentApplication = Dalvik.use("android.app.ActivityThread").currentApplication(); 
+var  Activity  =  Java.use("android.app.Activity");  
+var  activity  =  Java.cast(ptr("0x1234"),  Activity);
+```
+
+Generics currently result in `java.lang.Object`. 泛型Frida默认当为object对象.
+
+List<E> ,其中泛型E在frida中会被认为object.
+
+### 创建Java数组
+
+byte数组创建如下
+
+```javascript
+var buffer = Java.array('byte', [ 13, 37, 42 ]);
+````
+
+### 获取app context
+
+对于动态加载的dex,context的获取时机很重要
+
+```javascript
+    var currentApplication = Java.use("android.app.ActivityThread").currentApplication(); 
     var context = currentApplication.getApplicationContext();
 ```
 
-**创建对象示例**
+### 创建对象示例
+
 ```
 obj.$new();
 ```
-**hook 构造方法**
+### hook 构造方法
+
 ```
 obj.$init.implementation = function (){
 }
 ```
-**实现java接口**
+### 实现java接口interface
 
 https://gist.github.com/oleavr/3ca67a173ff7d207c6b8c3b0ca65a9d8
 
 java接口使用参考,其中X509TrustManager是interface类型.TrustManager为其实现类.manager为实例.
 
-我就成功过这一个接口,其他接口比如Runnable , HostNamerVerifier都没成功. 此问题在11.0.12上已经修复.
+我就成功过这一个接口,其他接口比如Runnable , HostNamerVerifier都没成功.
 
 ```JavaScript
 'use strict';
@@ -608,10 +705,14 @@ Java.perform(function () {
 
 ```
 
-**str int指针操作,有点乱**
+### str int指针操作,有点乱
+
 utf8 string写
+
 `Memory.allocUtf8String(str)`
+
 `var stringVar = Memory.allocUtf8String("string");`
+
 utf8 string读
 
 `Memory.readUtf8String(address[, size = -1])`
